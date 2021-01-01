@@ -1,4 +1,4 @@
-import { IFrame } from './frame.interface';
+import { IFrame } from '../interfaces/frame.interface';
 
 export class FrameDTO {
   frame: IFrame;
