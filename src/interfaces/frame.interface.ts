@@ -6,5 +6,6 @@ export interface IFrame {
   score2Render: string | null;
   score3?: number | string | null;
   score3Render?: string | null;
-  totalScore: number | null;
+  totalScore: number;
+  isFinished: boolean;
 }

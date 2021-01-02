@@ -3,6 +3,7 @@ import { CalculateService } from '../services/calculate.service';
 import { IFrame } from '../interfaces/frame.interface';
 import { BowlingRender, BowlingScore, renderToScore } from './bowling.enum';
 import { AppController } from '../app/app.controller';
+import ScoreBoard from 'src/models/ScoreBoard';
 
 function scoreBoardFactory(): Array<IFrame> {
   return [
@@ -13,6 +14,7 @@ function scoreBoardFactory(): Array<IFrame> {
       score2: null,
       score2Render: '',
       totalScore: null,
+      isFinished: false,
     },
     {
       frameNr: 1,
@@ -21,6 +23,7 @@ function scoreBoardFactory(): Array<IFrame> {
       score2: null,
       score2Render: '',
       totalScore: null,
+      isFinished: false,
     },
     {
       frameNr: 2,
@@ -29,6 +32,7 @@ function scoreBoardFactory(): Array<IFrame> {
       score2: null,
       score2Render: '',
       totalScore: null,
+      isFinished: false,
     },
     {
       frameNr: 3,
@@ -37,6 +41,7 @@ function scoreBoardFactory(): Array<IFrame> {
       score2: null,
       score2Render: '',
       totalScore: null,
+      isFinished: false,
     },
     {
       frameNr: 4,
@@ -45,6 +50,7 @@ function scoreBoardFactory(): Array<IFrame> {
       score2: null,
       score2Render: '',
       totalScore: null,
+      isFinished: false,
     },
     {
       frameNr: 5,
@@ -53,6 +59,7 @@ function scoreBoardFactory(): Array<IFrame> {
       score2: null,
       score2Render: '',
       totalScore: null,
+      isFinished: false,
     },
     {
       frameNr: 6,
@@ -61,6 +68,7 @@ function scoreBoardFactory(): Array<IFrame> {
       score2: null,
       score2Render: '',
       totalScore: null,
+      isFinished: false,
     },
     {
       frameNr: 7,
@@ -69,6 +77,7 @@ function scoreBoardFactory(): Array<IFrame> {
       score2: null,
       score2Render: '',
       totalScore: null,
+      isFinished: false,
     },
     {
       frameNr: 8,
@@ -77,6 +86,7 @@ function scoreBoardFactory(): Array<IFrame> {
       score2: null,
       score2Render: '',
       totalScore: null,
+      isFinished: false,
     },
     {
       frameNr: 9,
@@ -87,6 +97,7 @@ function scoreBoardFactory(): Array<IFrame> {
       score3: null,
       score3Render: '',
       totalScore: null,
+      isFinished: false,
     },
   ];
 }
@@ -101,6 +112,7 @@ function frameFactory(frameNr: number): IFrame {
     score3: null,
     score3Render: '',
     totalScore: null,
+    isFinished: false,
   };
 }
 
@@ -235,8 +247,8 @@ describe('calculateScore', () => {
     frame0.score2 = 5;
     frame0.totalScore = 8;
     let frame1: IFrame = scoreBoard[1];
-    frame1.score1 = 0;
-    frame1.score2 = 10;
+    frame1.score1 = 10;
+    frame1.score2 = null;
     let frame2: IFrame = scoreBoard[2];
     frame2.score1 = 5;
     frame2.score2 = 4;
@@ -248,11 +260,7 @@ describe('calculateScore', () => {
       scoreBoard,
     );
     let totalScore =
-      frame0.totalScore +
-      frame1.score1 +
-      frame1.score2 +
-      frame2.score1 +
-      frame2.score2;
+      frame0.totalScore + frame1.score1 + frame2.score1 + frame2.score2;
     expect(calculatedScoreBoard[1].totalScore).toBe(totalScore);
   });
 
@@ -286,12 +294,15 @@ describe('calculateScore', () => {
     frame0.score1 = 3;
     frame0.score2 = 5;
     frame0.totalScore = 8;
+    frame0.isFinished = true;
     let frame1: IFrame = scoreBoard[1];
     frame1.score1 = 3;
     frame1.score2 = 5;
+    frame1.isFinished = true;
     let frame2: IFrame = scoreBoard[2];
     frame2.score1 = 5;
     frame2.score2 = 4;
+    frame2.isFinished = true;
     scoreBoard[0] = frame0;
     scoreBoard[1] = frame1;
     scoreBoard[2] = frame2;
@@ -299,7 +310,7 @@ describe('calculateScore', () => {
     let calculatedScoreBoard: Array<IFrame> = calculateService.calculateScore(
       scoreBoard,
     );
-    let totalScore = frame1.score1 + frame1.score2;
+    let totalScore = frame1.score1 + frame1.score2 + frame0.totalScore;
     expect(calculatedScoreBoard[1].totalScore).toBe(totalScore);
   });
 
@@ -346,5 +357,54 @@ describe('calculateScore', () => {
     calculatedScoreBoard = calculateService.calculateScore(scoreBoard);
     totalScore = frame8.totalScore + frame9.score1 + BowlingScore.STRIKE;
     expect(calculatedScoreBoard[9].totalScore).toBe(totalScore);
+  });
+
+  it('should have a total score of 300 after a perfect strike series', async () => {
+    let scoreBoard = scoreBoardFactory();
+
+    for (const frame of scoreBoard) {
+      frame.score1 = BowlingScore.STRIKE;
+      if (frame.frameNr !== 9) {
+        frame.score2 = null;
+        frame.isFinished = true;
+      } else {
+        frame.score2 = BowlingScore.STRIKE;
+        frame.score3 = BowlingScore.STRIKE;
+        frame.isFinished = true;
+      }
+    }
+
+    let calculatedScoreBoard: Array<IFrame> = calculateService.calculateScore(
+      scoreBoard,
+    );
+    let totalScore = 300;
+    expect(calculatedScoreBoard[9].totalScore).toBe(totalScore);
+  });
+
+  it('should have a total score of 38 when frame0 is a strike, frame1 a spare, and frame2 4|0', async () => {
+    let scoreBoard = scoreBoardFactory();
+    let frame0 = scoreBoard[0];
+    frame0.score1 = BowlingScore.STRIKE;
+    frame0.score2 = null;
+    frame0.totalScore = 20;
+    frame0.isFinished = true;
+    let frame1 = scoreBoard[1];
+    frame1.score1 = 5;
+    frame1.score2 = 5;
+    frame1.totalScore = 34;
+    frame1.isFinished = true;
+    let frame2 = scoreBoard[2];
+    frame2.score1 = 4;
+    frame2.score2 = 0;
+    frame2.isFinished = true;
+    scoreBoard[0] = frame0;
+    scoreBoard[1] = frame1;
+    scoreBoard[2] = frame2;
+
+    let calculatedScoreBoard: Array<IFrame> = calculateService.calculateScore(
+      scoreBoard,
+    );
+    let totalScore = frame1.totalScore + frame2.score1 + frame2.score2;
+    expect(calculatedScoreBoard[2].totalScore).toBe(totalScore);
   });
 });
