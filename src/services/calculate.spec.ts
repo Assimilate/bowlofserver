@@ -1,7 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CalculateService } from '../services/calculate.service';
 import { IFrame } from '../interfaces/frame.interface';
-import { BowlingRender, BowlingScore, renderToScore } from './bowling.enum';
+import {
+  BowlingRender,
+  BowlingScore,
+  renderToScore,
+} from '../interfaces/bowling.enum';
 import { AppController } from '../app/app.controller';
 import ScoreBoard from 'src/models/ScoreBoard';
 

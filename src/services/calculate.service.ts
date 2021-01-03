@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { IFrame } from '../interfaces/frame.interface';
-import { BowlingRender, BowlingScore } from './bowling.enum';
+import { BowlingRender, BowlingScore } from '../interfaces/bowling.enum';
 
 @Injectable()
 export class CalculateService {
